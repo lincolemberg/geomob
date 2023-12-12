@@ -1,35 +1,39 @@
 <?
 //$db = mysqli_connect('sql484.main-hosting.eu', 'u271456575_admin', 'Lin221286', 'u271456575_en9');
-$db = mysqli_connect('sql793.main-hosting.eu', 'u830389020_geomob', '@Linco221286', 'u830389020_geomob');
+$db2 = pg_connect("host=faus.arapiraca.al.gov.br port=5432 dbname=db_faus user=fiscal password=db#f1sc@l@R@19");
+if(!$db2){
+
+echo "erro na conexão.";
+}
 
 
-$query = mysqli_query($db, "SELECT * FROM  objetos ORDER BY id ASC")or die(mysqli_error());
+
+$query = pg_query("SELECT * FROM  objetos ORDER BY id ASC");
 
 $geojson = array('type' => 'FeatureCollection', 'features' => array());
 $marker = array ('type' => 'FeatureCollection');
 
 $hoje = date("Y-m-d");
-		while($resul = mysqli_fetch_assoc($query)){
+		while($resul = pg_fetch_assoc($query)){
 			$latitude = $resul['lat'];
 			$longitude  = $resul['log'];
-			$processo  = $resul['descricao'];
-			$gerador = $resul['gerador'];
-			$titulo  = $resul['titulo'];
+			$titulo  = $resul['responsavel'];
+			$anunciante  = $resul['anunciante'];
+
 			$data  = $resul['data'];
-			$status = $resul['classificacao'];
+			
 			$prazo = $resul['prazo'];
-			$reincide = $resul['reincidencia'];
-			$imagem = $resul['arquivo'];
+			$status = $resul['status'];
+			$imagem = $resul['foto'];
 			$id = $resul['id'];
+			$obs = $resul['obs'];
 			
 			
-			if((strtotime($prazo) >= strtotime($hoje)) and $reincide == "sim")
+			if($status == "irregular")
 			$cor = "#f9c638";
-			elseif(strtotime($prazo) >= strtotime($hoje))
+			elseif($status == "regular")
 			$cor = "#4ab935";
-			if(strtotime($prazo) < strtotime($hoje))
-			$cor = "#e43232";
-			if(strtotime($prazo) < strtotime($hoje) and $gerador == "grande gerador")
+			if($status == "removido")
 			$cor = "#000";
 
 			
@@ -48,9 +52,11 @@ $hoje = date("Y-m-d");
 					 (float)$latitude
                 )), 
 			"properties" => array(
+				'id' => $id,
+				'description' => 'Anunciante: '.$anunciante.' <i title="'.$data.'">'. $prazo.'</i><a href="https://faus.arapiraca.al.gov.br/geomob/outdoors/'.$imagem.'" target="_blank" ><img style="display:block;width:200px;margin:auto;text-aling:center;" 
+				src="https://faus.arapiraca.al.gov.br/geomob/outdoors/'.$imagem.'" /></a><p>'.$obs.'</p> <a style="cursor:pointer;" href="https://faus.arapiraca.al.gov.br/geomob/apaga_outdoor.php?id='.$id.'">Excluir</a>',
                 'marker-color' => $cor,
-				'title' =>  $titulo . ' - <i>'. $gerador.'</i><img style="display:block;width:100px;margin:auto;text-aling:center;" 
-				src="https://'.$_SERVER['SERVER_NAME'].'/geomob/entulhos_fotos/'.$imagem.'" /><a style="cursor:pointer;" href="https://'.$_SERVER['SERVER_NAME'].'/geomob/apaga_entulho.php?arq='.$imagem.'&id='.$id.'">EXCLUIR</a>',
+				'title' =>  'Responsável: ' .$titulo,
 				'rentals' => false,
 				'tackleshop' => true,
 				"fuel" => true,
@@ -64,6 +70,6 @@ $hoje = date("Y-m-d");
 }
 
 
-header('Content-type: application/json');
+//header('Content-type: application/json');
 echo json_encode($geojson); 
 ?>

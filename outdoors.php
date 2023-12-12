@@ -42,10 +42,20 @@ color:#fff;
 <script>
 
 L.mapbox.accessToken = 'pk.eyJ1IjoibGluY29ubGVtYmVyZyIsImEiOiJja2wwdjluaTE1emM5MnBwZGoxenl5cXF2In0.1ITG-7frmivt-Ejxp0rhug';
+<?
+if(isset($_GET['lat']) and isset($_GET['lon'])){
+?>
+var map = L.mapbox.map('map')
+    .setView([ <?=$_GET['lat']?>, <?=$_GET['lon']?>], 21)
+    .addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/navigation-night-v1'));<?
+}else{
+?>
 var map = L.mapbox.map('map')
     .setView([ -9.751450, -36.660290], 13)
-    .addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/streets-v11'));
-
+    .addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/navigation-night-v1'));
+<?
+	 }
+?>
 // As with any other AJAX request, this technique is subject to the Same Origin Policy:
 // http://en.wikipedia.org/wiki/Same_origin_policy
 // So the CSV file must be on the same domain as the Javascript, or the server
